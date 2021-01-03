@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Ragnoria MapEditor</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2">
+  <link type="text/css" rel="stylesheet" href="src/app.css"/>
+  <link rel="stylesheet" href="src/font-awesome-4.7.0/css/font-awesome.min.css">
+  <script src="config.js"></script>
+  <script src="src/jquery-3.4.1.min.js"></script>
+  <script src="src/app.js"></script>
+</head>
+<body>
+
+<div class="item-container">
+  <div class="actual-item">
+    <div class="actual-item-image"></div>
+    <div class="secondary-item-image"></div>
+    <div class="actual-item-details">- (0)</div>
+  </div>
+  <select id="Layer">
+    <option value="ground" selected>ground</option>
+    <option value="edge">edge</option>
+    <option value="building">building</option>
+  </select>
+  <div class="item-list"></div>
+</div>
+
+<div class="map-container">
+  <canvas id="map"></canvas>
+</div>
+
+<div class="menu-container">
+
+  <div class="menu-buttons">
+    <div data-tool="pointer" class="menu-button active">
+      <i class="fa fa-mouse-pointer"></i>
+    </div>
+    <div data-tool="brush" class="menu-button">
+      <i class="fa fa-pencil"></i>
+    </div>
+    <div data-tool="eraser" class="menu-button">
+      <i class="fa fa-eraser"></i>
+    </div>
+
+    <select id="BrushSize" class="menu-button">
+      <option value="1" selected>1x1</option>
+      <option value="3">3x3</option>
+    </select>
+
+    <div class="menu-separator"></div>
+
+    <div data-action="load" class="menu-button">
+      <i class="fa fa-upload"></i> Import
+    </div>
+
+    <div data-action="save" class="menu-button">
+      <i class="fa fa-download"></i> Export
+    </div>
+
+    <div class="menu-separator"></div>
+
+    <div data-action="up" class="menu-button">
+      <i class="fa fa-level-up"></i> UP
+    </div>
+    <div data-action="down" class="menu-button">
+      <i class="fa fa-level-down"></i> DOWN
+    </div>
+
+  </div>
+
+  <div class="pos">
+    <div class="pos-x">X:</div>
+    <div class="pos-y">Y:</div>
+    <div class="pos-z">Z:</div>
+  </div>
+</div>
+
+<div id="wait">
+  <i class="fa fa-refresh fa-spin fa-3x"></i>
+</div>
+
+<div id="loader">
+  <i class="fa fa-refresh fa-spin fa-3x"></i>
+</div>
+
+<script>
+  $(function() {
+    App.init();
+  });
+</script>
+</body>
+</html>
+
