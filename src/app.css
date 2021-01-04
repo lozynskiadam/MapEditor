@@ -38,9 +38,8 @@ body {
   max-height: 100%;
   overflow-x: hidden;
   overflow-y: hidden;
-  background-color: #000;
+  background-color: #090b0e;
   z-index: 1;
-  background-image: url('bg.png');
 }
 .menu-container {
   position: absolute;
@@ -64,7 +63,10 @@ body {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  background: url(dropdown.png) 98% no-repeat #181f26;
+  background-image: url(ui.png);
+  background-repeat: no-repeat;
+  background-color: #181f26;
+  background-position: right 0 top -90px;
 }
 .actual-item {
   position: relative;
@@ -162,7 +164,6 @@ body {
   display: inline-block;
   text-align: center;
   border: 1px outset #888;
-  min-width: 25px;
   height: 25px;
   padding: 3px;
   background-color: #13191e;
@@ -256,4 +257,35 @@ body {
   right: 1px;
   bottom: 1px;
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+.menu-button {
+  position: relative;
+}
+.menu-button span {
+  margin: 0 2px 0 18px;
+}
+.menu-button::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  width: 15px;
+  height: 15px;
+  background-image: url('ui.png');
+  background-repeat: no-repeat;
+}
+[data-tool="pointer"]::after {
+  background-position: left 0 top -15px;
+}
+[data-tool="brush"]::after {
+  background-position: left 0 top -45px;
+}
+[data-tool="eraser"]::after {
+  background-position: left 0 top -30px;
+}
+[data-action="import"]::after {
+  background-position: left 0 top -75px;
+}
+[data-action="export"]::after {
+  background-position: left 0 top -60px;
 }

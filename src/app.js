@@ -24,8 +24,8 @@ var App = {
   MapRangeY: {},
 
   init: function () {
-    App.MapRangeX = {From: 100, To: 149};
-    App.MapRangeY = {From: 100, To: 149};
+    App.MapRangeX = {From: 0, To: 100};
+    App.MapRangeY = {From: 0, To: 100};
     App.Canvas.General = document.getElementById('map');
     App.updateCanvasSize();
     App.loader();
@@ -465,7 +465,9 @@ var App = {
 
       CTX = App.Canvas.Floor[z].getContext('2d');
       CTX.clearRect(0, 0, App.Canvas.Floor[z].width, App.Canvas.Floor[z].height);
-      CTX.globalAlpha = 0.50;
+      if(z !== 0 && z !== Config.MinFloor) {
+        CTX.globalAlpha = 0.50;
+      }
       CTX.fillStyle = "#000000";
       CTX.fillRect(0, 0, App.Canvas.Floor[z].width, App.Canvas.Floor[z].height);
       CTX.globalAlpha = 1;

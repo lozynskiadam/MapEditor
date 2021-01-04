@@ -1,10 +1,9 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <title>Ragnoria MapEditor</title>
+  <title>MapEditor</title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2">
   <link type="text/css" rel="stylesheet" href="src/app.css"/>
-  <link rel="stylesheet" href="src/font-awesome-4.7.0/css/font-awesome.min.css">
   <script src="config.js"></script>
   <script src="src/jquery-3.4.1.min.js"></script>
   <script src="src/app.js"></script>
@@ -32,15 +31,9 @@
 <div class="menu-container">
 
   <div class="menu-buttons">
-    <div data-tool="pointer" class="menu-button active">
-      <i class="fa fa-mouse-pointer"></i>
-    </div>
-    <div data-tool="brush" class="menu-button">
-      <i class="fa fa-pencil"></i>
-    </div>
-    <div data-tool="eraser" class="menu-button">
-      <i class="fa fa-eraser"></i>
-    </div>
+    <div data-tool="pointer" class="menu-button active"><span></span></div>
+    <div data-tool="brush" class="menu-button"><span></span></div>
+    <div data-tool="eraser" class="menu-button"><span></span></div>
 
     <select id="BrushSize" class="menu-button">
       <option value="1" selected>1x1</option>
@@ -49,21 +42,12 @@
 
     <div class="menu-separator"></div>
 
-    <div data-action="load" class="menu-button">
-      <i class="fa fa-upload"></i> Import
+    <div data-action="import" class="menu-button">
+      <span>Import</span>
     </div>
 
-    <div data-action="save" class="menu-button">
-      <i class="fa fa-download"></i> Export
-    </div>
-
-    <div class="menu-separator"></div>
-
-    <div data-action="up" class="menu-button">
-      <i class="fa fa-level-up"></i> UP
-    </div>
-    <div data-action="down" class="menu-button">
-      <i class="fa fa-level-down"></i> DOWN
+    <div data-action="export" class="menu-button">
+      <span>Export</span>
     </div>
 
   </div>
@@ -75,13 +59,9 @@
   </div>
 </div>
 
-<div id="wait">
-  <i class="fa fa-refresh fa-spin fa-3x"></i>
-</div>
+<div id="wait"></div>
 
-<div id="loader">
-  <i class="fa fa-refresh fa-spin fa-3x"></i>
-</div>
+<div id="loader"></div>
 
 <script>
   $(function() {
