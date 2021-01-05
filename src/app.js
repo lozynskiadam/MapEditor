@@ -43,10 +43,9 @@ var App = {
     L === 1 && App.loadItems();
     L === 2 && App.fillPalette();
     L === 3 && App.setFloors();
-    L === 4 && App.setArea();
-    L === 5 && App.setKeyboardEvents();
-    L === 6 && App.setMouseEvents();
-    L === 7 && App.finishLoading();
+    L === 4 && App.setKeyboardEvents();
+    L === 5 && App.setMouseEvents();
+    L === 6 && App.finishLoading();
   },
 
   finishLoading: function () {
@@ -144,21 +143,6 @@ var App = {
     App.loader();
   },
 
-  setArea: function () {
-    App.Area = {};
-    for (let z = Config.MinFloor; z <= Config.MaxFloor; z++) {
-      App.Area[z] = {};
-      for (let y = App.MapRangeY.From; y <= App.MapRangeY.To; y++) {
-        App.Area[z][y] = {};
-        for (let x = App.MapRangeX.From; x <= App.MapRangeX.To; x++) {
-          App.Area[z][y][x] = [];
-        }
-      }
-    }
-    // App.getTile(110, 110, 0).push(1010);
-    App.loader();
-  },
-
   setKeyboardEvents: function () {
     $(document).on("keydown", function (e) {
 
@@ -221,8 +205,8 @@ var App = {
       // [delete] -> remove highlighted item
       if (e.keyCode === 46) {
         if (App.HighlightedItem) {
-          App.getTile(App.HighlightedItem.X,App.HighlightedItem.Y,App.HighlightedItem.Z).pop();
-          App.HighlightedItem = null;
+          App.eraseOnTile(App.HighlightedItem.X,App.HighlightedItem.Y,App.HighlightedItem.Z);
+          // App.HighlightedItem = null;
           App.render();
         }
       }
@@ -268,8 +252,8 @@ var App = {
         $('.pos-x', document).text('X: ' + x);
         $('.pos-y', document).text('Y: ' + y);
         $('.pos-z', document).text('Z: ' + App.CurrentFloor);
-        if (App.Dragging) {
-          App.Tool.onDrag();
+        if (App.Dragging && App.Tool.onDrag) {
+          App.Tool.onDrag(App.CursorPosition.X, App.CursorPosition.Y, App.CurrentFloor);
         }
         App.render();
       }
@@ -278,25 +262,26 @@ var App = {
     $('#map', document).on('mousedown', function (e) {
       if (e.which === 3) {
         App.setTool('pointer');
-        App.highlightOnTile(App.CurrentFloor, App.CursorPosition.Y, App.CursorPosition.X);
+        App.highlightOnTile(App.CursorPosition.X, App.CursorPosition.Y, App.CurrentFloor);
         return;
       }
       if (!(e.which === 1)) {
         return;
       }
-      App.Tool.onClick();
+      if(App.Tool.onClick) {
+        App.Tool.onClick(App.CursorPosition.X, App.CursorPosition.Y, App.CurrentFloor);
+      }
       App.render();
     });
 
-    $('.menu-button[data-tool]', document).on('click', function () {
+    $('[data-tool]', document).on('click', function () {
       App.setTool($(this).data('tool'));
     });
     $('#BrushSize', document).on('change', function () {
       App.setBrushSize(parseInt($(this).val()));
     });
-    $('.menu-button[data-action="save"]', document).on('click', function () {
-      App.save();
-    });
+    $('[data-action="import"]', document).on('click', App.import);
+    $('[data-action="export"]', document).on('click', App.export);
 
     App.loader();
   },
@@ -306,14 +291,20 @@ var App = {
     if(!tool) return;
 
     App.Tool = tool;
-    $('.menu-button[data-tool]', document).removeClass('active');
-    $('.menu-button[data-tool="' + tool.name + '"]', document).addClass('active');
+    App.HighlightedItem = null;
+    $('[data-tool]', document).removeClass('active');
+    $('[data-tool="' + tool.name + '"]', document).addClass('active');
     App.render();
   },
 
-  drawOnTile: function (z, y, x) {
-    if (!App.getTile(x,y,z) || !App.SelectedItem) {
+  drawOnTile: function (x, y, z) {
+    if (!App.SelectedItem) {
       return;
+    }
+    if (!App.getTile(x,y,z)) {
+        App.Area[z] = App.Area[z] || {};
+        App.Area[z][y] = App.Area[z][y] || {};
+        App.Area[z][y][x] = App.Area[z][y][x] || [];
     }
     let drawn = false;
 
@@ -341,19 +332,25 @@ var App = {
     }
   },
 
-  eraseOnTile: function (z, y, x, hardClear = false) {
+  eraseOnTile: function (x, y, z, hardClear = false) {
     let tile = App.getTile(x,y,z);
     if (!tile || tile.length === 0) {
       return;
     }
     let itemId = App.getTile(x,y,z)[(tile.length - 1)];
-    if (!hardClear && App.getItem(itemId).layer === 'ground') {
+    if (!hardClear && App.getItem(itemId).layer === 'ground' && !App.HighlightedItem) {
       return;
     }
     hardClear ? tile.length = 0 : tile.pop();
+
+    if(tile.length === 0) {
+      delete App.Area[z][y][x];
+      if(Object.keys(App.Area[z][y]).length === 0) delete App.Area[z][y];
+      if(Object.keys(App.Area[z]).length === 0) delete App.Area[z];
+    }
   },
 
-  highlightOnTile: function (z, y, x) {
+  highlightOnTile: function (x, y, z) {
     if (!App.Area[z] || !App.Area[z][y] || !App.Area[z][y][x] || App.Area[z][y][x].length === 0) {
       return;
     }
@@ -361,44 +358,33 @@ var App = {
     App.render();
   },
 
-  load: function (data) {
-    $('#wait', document).fadeIn('fast');
-
-    let area = JSON.parse(data);
-    App.MapRangeX = {From: fromX, To: toX};
-    App.MapRangeY = {From: fromY, To: toY};
-    App.setArea();
-
-    for (let z in area) if (area.hasOwnProperty(z)) {
-      for (let y in area[z]) if (area[z].hasOwnProperty(y)) {
-        for (let x in area[z][y]) if (area[z][y].hasOwnProperty(x)) {
-          App.Area[z][y][x] = area[z][y][x];
+  import: function () {
+    let file = document.createElement("input")
+    file.type = "file"
+    file.accept = "application/JSON"
+    file.addEventListener('change', (event) => {
+      let reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          App.Area = JSON.parse(event.target.result);
+        } catch(e) {
+          alert('Selected file is not a valid map editor file');
         }
-      }
-    }
-    App.render();
-
-    $('#wait', document).fadeOut('fast');
+        App.MapRangeX.From = 0;
+        App.MapRangeY.From = 0;
+        App.render();
+        $('#wait', document).fadeOut('fast');
+      };
+      reader.readAsText(event.target.files[0]);
+    });
+    file.click();
   },
 
-  save: function () {
-    if (typeof App.MapRangeX.From == 'undefined' || typeof App.MapRangeX.To == 'undefined' || typeof App.MapRangeY.From == 'undefined' || typeof App.MapRangeX.To == 'undefined') {
-      alert('undefined zone');
-      return;
-    }
-    $('#wait').fadeIn('fast');
-    $.ajax({
-      type: "POST",
-      url: 'src/SaveArea.php',
-      data: {
-        Area: JSON.stringify(App.Area),
-        BackupMapVersions: Config.BackupMapVersions
-      },
-      success: function (data) {
-        alert(data);
-        $('#wait').fadeOut('fast');
-      }
-    });
+  export: function () {
+    let file = document.createElement("a")
+    file.download = "map.json"
+    file.href = URL.createObjectURL(new Blob([JSON.stringify(App.Area, null, 2)]))
+    file.click()
   },
 
   render: function () {
@@ -421,6 +407,9 @@ var App = {
 
       for (let y = App.MapRangeY.From; y <= App.MapRangeY.To; y++) {
         for (let x = App.MapRangeX.From; x <= App.MapRangeX.To; x++) {
+          if(!App.getTile(x,y,z)) {
+            continue;
+          }
           for (let stack in App.Area[z][y][x]) if (App.Area[z][y][x].hasOwnProperty(stack)) {
             let item = App.getItem(App.Area[z][y][x][stack]);
             let drawX = (x - App.MapRangeX.From) * Config.TileSize + (Config.TileSize - item.image.width);
@@ -440,10 +429,10 @@ var App = {
       }
 
       // render tool
-      if (z === App.CurrentFloor) {
+      if (z === App.CurrentFloor && App.Tool.onRender) {
         let x = ((App.CursorPosition.X - App.MapRangeX.From) * Config.TileSize);
         let y = ((App.CursorPosition.Y - App.MapRangeY.From) * Config.TileSize);
-        App.Tool.render(CTX,x,y);
+        App.Tool.onRender(x,y,z,CTX);
       }
     }
 

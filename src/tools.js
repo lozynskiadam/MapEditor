@@ -2,13 +2,10 @@ var Tools = [
 
   {
     name: 'pointer',
-    onClick: function() {
-      App.highlightOnTile(App.CurrentFloor, App.CursorPosition.Y, App.CursorPosition.X);
+    onClick: function(x, y, z) {
+      App.highlightOnTile(x, y, z);
     },
-    onDrag: function() {
-
-    },
-    render: function(CTX,x,y) {
+    onRender: function(x, y, z, CTX) {
       CTX.lineWidth = 1;
       CTX.strokeStyle = "#ffffff";
       CTX.strokeRect(x + 0.5, y + 0.5, (Config.TileSize-1), (Config.TileSize-1));
@@ -19,31 +16,31 @@ var Tools = [
 
   {
     name: 'brush',
-    onClick: function() {
+    onClick: function(x, y, z) {
       if (App.BrushSize === 1) {
-        App.drawOnTile(App.CurrentFloor, App.CursorPosition.Y, App.CursorPosition.X);
+        App.drawOnTile(x, y, z);
       }
       if (App.BrushSize === 3) {
         for (let i = -1; i <= 1; i++) {
           for (let j = -1; j <= 1; j++) {
-            App.drawOnTile(App.CurrentFloor, App.CursorPosition.Y + i, App.CursorPosition.X + j);
+            App.drawOnTile(x + j, y + i, z);
           }
         }
       }
     },
-    onDrag: function() {
+    onDrag: function(x, y, z) {
       if (App.BrushSize === 1) {
-        App.drawOnTile(App.CurrentFloor, App.CursorPosition.Y, App.CursorPosition.X);
+        App.drawOnTile(x, y, z);
       }
       if (App.BrushSize === 3) {
         for (let i = -1; i <= 1; i++) {
           for (let j = -1; j <= 1; j++) {
-            App.drawOnTile(App.CurrentFloor, App.CursorPosition.Y + i, App.CursorPosition.X + j);
+            App.drawOnTile(x + j, y + i, z);
           }
         }
       }
     },
-    render: function(CTX,x,y) {
+    onRender: function(x, y, z, CTX) {
       if (App.BrushSize === 1) {
         if (App.SelectedItem) {
           CTX.drawImage(App.SelectedItem.image,
@@ -80,31 +77,31 @@ var Tools = [
 
   {
     name: 'eraser',
-    onClick: function() {
+    onClick: function(x, y, z) {
       if (App.BrushSize === 1) {
-        App.eraseOnTile(App.CurrentFloor, App.CursorPosition.Y, App.CursorPosition.X);
+        App.eraseOnTile(x, y, z);
       }
       if (App.BrushSize === 3) {
         for (let i = -1; i <= 1; i++) {
           for (let j = -1; j <= 1; j++) {
-            App.eraseOnTile(App.CurrentFloor, App.CursorPosition.Y + i, App.CursorPosition.X + j, true);
+            App.eraseOnTile(x + j, y + i, z, true);
           }
         }
       }
     },
-    onDrag: function() {
+    onDrag: function(x, y, z) {
       if (App.BrushSize === 1) {
-        App.eraseOnTile(App.CurrentFloor, App.CursorPosition.Y, App.CursorPosition.X);
+        App.eraseOnTile(x, y, z);
       }
       if (App.BrushSize === 3) {
         for (let i = -1; i <= 1; i++) {
           for (let j = -1; j <= 1; j++) {
-            App.eraseOnTile(App.CurrentFloor, App.CursorPosition.Y + i, App.CursorPosition.X + j, true);
+            App.eraseOnTile(x + j, y + i, z, true);
           }
         }
       }
     },
-    render: function(CTX,x,y) {
+    onRender: function(x, y, z, CTX) {
       if (App.BrushSize === 1) {
         CTX.lineWidth = 1;
         CTX.strokeStyle = '#ff0000';
