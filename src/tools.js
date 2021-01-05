@@ -2,6 +2,7 @@ var Tools = [
 
   {
     name: 'pointer',
+    sizing: false,
     onClick: function(x, y, z) {
       App.highlightOnTile(x, y, z);
     },
@@ -16,6 +17,7 @@ var Tools = [
 
   {
     name: 'brush',
+    sizing: true,
     onClick: function(x, y, z) {
       if (App.BrushSize === 1) {
         App.drawOnTile(x, y, z);
@@ -77,6 +79,7 @@ var Tools = [
 
   {
     name: 'eraser',
+    sizing: true,
     onClick: function(x, y, z) {
       if (App.BrushSize === 1) {
         App.eraseOnTile(x, y, z);

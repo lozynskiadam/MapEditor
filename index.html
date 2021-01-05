@@ -5,37 +5,29 @@
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2">
   <link type="text/css" rel="stylesheet" href="src/app.css"/>
   <script src="src/jquery-3.4.1.min.js"></script>
-  <script src="config.js"></script>
   <script src="src/app.js"></script>
   <script src="src/tools.js"></script>
+  <script src="config.js"></script>
 </head>
-<body>
+<body class="loading">
 
 <div class="sidebar">
-  <div class="actual-item">
-    <div class="actual-item-image"></div>
+  <div class="selected-item">
+    <div class="selected-item-image"></div>
     <div class="secondary-item-image"></div>
-    <div class="actual-item-details"></div>
+    <div class="selected-item-details"></div>
   </div>
   <select class="layer-list"></select>
-  <div class="item-list"></div>
+  <div class="palette"></div>
 </div>
 
-<div class="map-container">
-  <canvas id="map"></canvas>
-</div>
-
-<div class="menu-container">
+<div class="navbar">
 
   <div class="menu-buttons">
     <div data-tool="pointer" class="menu-button active"><span></span></div>
     <div data-tool="brush" class="menu-button"><span></span></div>
     <div data-tool="eraser" class="menu-button"><span></span></div>
-
-    <select id="BrushSize" class="menu-button">
-      <option value="1" selected>1x1</option>
-      <option value="3">3x3</option>
-    </select>
+    <input id="BrushSize" type="range" min="1" max="4" value="1" class="menu-button slider">
 
     <div class="menu-separator"></div>
 
@@ -51,8 +43,9 @@
   </div>
 </div>
 
-<div id="wait"></div>
-<div id="loader"></div>
+<div class="content">
+  <canvas id="map"></canvas>
+</div>
 
 <script>
   $(function() {

@@ -16,8 +16,11 @@ body {
   font-size: 13px;
   overflow-x: hidden;
   color: #333;
+  transition: all .25s linear 0s;
 }
-
+body.loading {
+  opacity: 0;
+}
 .sidebar {
   position: relative;
   float: left;
@@ -30,18 +33,7 @@ body {
   z-index: 3;
   border-right: 2px solid #0b0f12;
 }
-.map-container {
-  margin-top: 32px;
-  float: left;
-  width: calc(100% - 236px);
-  height: calc(100vh - 32px);;
-  max-height: 100%;
-  overflow-x: hidden;
-  overflow-y: hidden;
-  background-color: #090b0e;
-  z-index: 1;
-}
-.menu-container {
+.navbar {
   position: absolute;
   top: 0;
   right: 0;
@@ -53,7 +45,17 @@ body {
   height: 32px;
   cursor: default;
 }
-
+.content {
+  margin-top: 32px;
+  float: left;
+  width: calc(100% - 236px);
+  height: calc(100vh - 32px);;
+  max-height: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  background-color: #090b0e;
+  z-index: 1;
+}
 .layer-list {
   width: 100%;
   padding: 2px;
@@ -68,12 +70,12 @@ body {
   background-color: #181f26;
   background-position: right 0 top -90px;
 }
-.actual-item {
+.selected-item {
   position: relative;
   margin: 10px;
   height: 100px;
 }
-.actual-item-image,
+.selected-item-image,
 .secondary-item-image {
   position: absolute;
   width: 68px;
@@ -81,7 +83,7 @@ body {
   border: 2px inset #141414;
   background-color: #181f26;
 }
-.actual-item-image {
+.selected-item-image {
   top: 15px;
   left: 70px;
   z-index: 2;
@@ -91,7 +93,7 @@ body {
   left: 85px;
   z-index: 1;
 }
-.actual-item-image img,
+.selected-item-image img,
 .secondary-item-image img {
   object-fit: cover;
   object-position: 0 0;
@@ -101,19 +103,19 @@ body {
   height: 32px;
   transform: scale(2);
 }
-.actual-item-details {
+.selected-item-details {
   position: absolute;
   width: 100%;
   top: 85px;
   text-align: center;
 }
-.item-list {
+.palette {
   overflow-y: scroll;
   scrollbar-color: rgba(255, 252, 243, 0.5) #181f26;
   height: calc(100vh - 145px);
   background-color: rgba(0,0,0,0.25)
 }
-.item-select {
+.palette .item-select {
   display: inline-block;
   position: relative;
   cursor: pointer;
@@ -122,33 +124,32 @@ body {
   width: 36px;
   height: 36px;
 }
-.item-select.active {
+.palette .item-select.active {
   border: 2px inset #b37f00;
   background-color: rgba(0, 0, 0, 0.47);
   color: #fff;
 }
-.item-select img {
+.palette .item-select img {
   width: 32px;
   height: 32px;
   object-fit: cover;
   object-position: 0 0;
 }
-
-.menu-container .pos {
+.navbar .pos {
   float: right;
   margin-top: 2px;
 }
-.menu-container .pos div{
+.navbar .pos div {
   display: inline-block;
   width: 55px;
   background-color: #364856;
   color: #eee;
   padding: 2px 4px;
 }
-.menu-container .menu-buttons {
+.navbar .menu-buttons {
   display: inline-block;
 }
-.menu-container .menu-buttons .menu-separator {
+.navbar .menu-buttons .menu-separator {
   display: inline-block;
   height: 24px;
   padding: 3px 2px 3px 3px;
@@ -156,12 +157,12 @@ body {
   border-left: 4px double #0c0e11;
   margin-left: 5px;
 }
-.menu-container .menu-buttons .menu-separator::before {
+.navbar .menu-buttons .menu-separator::before {
   content: '\feff';
 }
-
-.menu-container .menu-buttons .menu-button {
+.navbar .menu-buttons .menu-button {
   display: inline-block;
+  position: relative;
   text-align: center;
   border: 1px outset #888;
   height: 25px;
@@ -170,101 +171,40 @@ body {
   color: #e0e0e0;
   font-weight: bold;
   line-height: 18px;
+  transition: all .2s;
 }
-.menu-container .menu-buttons .menu-button:hover {
+.navbar .menu-buttons .menu-button:hover {
   background-color: #293540;
 }
-.menu-container .menu-buttons .menu-button.active {
+.navbar .menu-buttons .menu-button.active {
   border: 1px inset #888;
   background-color: #455764 !important;
   color: #bbb;
 }
-#loader {
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #0c1117;
-  font-size: 28px;
-  color: #eee;
-  text-align: center;
-  line-height: 100vh;
-  z-index: 1000;
+.navbar .menu-buttons .menu-button[disabled] {
+  background-color: #b6b6b6 !important;
+  color: #878787 !important;
 }
-#wait {
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(12, 17, 23, 0.75);
-  font-size: 28px;
-  color: #eee;
-  text-align: center;
-  line-height: 100vh;
-  z-index: 999;
-  display: none;
-}
-#load-box {
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(12, 17, 23, 0.75);
-  font-size: 28px;
-  color: #eee;
-  text-align: center;
-  z-index: 998;
-  padding: 100px;
-}
-#load-box .container{
-  width: 300px;
-  margin: auto;
-  background-color: #181f26;
-  border: 1px solid #2e3c4a;
-  font-size: 13px;
-  font-weight: bold;
-  color: #eee;
-  padding: 15px;
-  line-height: 30px;
-}
-#load-box .container input[type="text"]{
-  border: 1px solid #888;
-  width: 100px;
-  padding: 3px;
-  background-color: #13191e;
-  color: #e0e0e0;
-  font-weight: bold;
-}
-#load-box .container input[type="button"]{
-  border: 1px outset #888;
-  background-color: #13191e;
-  color: #e0e0e0;
-  font-weight: bold;
-  width: 154px;
-  height: 25px;
-}
-#load-box .container input[type="button"]:hover {
-  border: 1px outset #888;
-  background-color: #1f2931;
-}
-[data-paddings="true"]::after {
-  content: "\f065";
-  font: normal normal normal 11px/1 FontAwesome;
-  position: absolute;
-  right: 1px;
-  bottom: 1px;
-  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
-}
-.menu-button {
-  position: relative;
-}
-.menu-button span {
+.navbar .menu-buttons .menu-button span {
   margin: 0 2px 0 18px;
 }
-.menu-button::after {
+.navbar .menu-buttons .menu-button[type="range"] {
+  -webkit-appearance: none;
+  height: 8px !important;
+  width: 100px;
+}
+.navbar .menu-buttons .menu-button[type="range"]::-webkit-slider-thumb,
+.navbar .menu-buttons .menu-button[type="range"]::-moz-range-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 8px;
+  height: 20px;
+  background: #3a4148;
+  border: 1px outset #525860;
+  border-radius: 0;
+  cursor: pointer;
+}
+.navbar .menu-buttons .menu-button::after {
   content: "";
   position: absolute;
   left: 5px;

@@ -30,8 +30,8 @@ var App = {
   },
 
   updateCanvasSize: function() {
-    App.Canvas.General.width = document.querySelector('.map-container').clientWidth;
-    App.Canvas.General.height = document.querySelector('.map-container').clientHeight;
+    App.Canvas.General.width = document.querySelector('.content').clientWidth;
+    App.Canvas.General.height = document.querySelector('.content').clientHeight;
   },
 
   loader: function () {
@@ -49,9 +49,7 @@ var App = {
   finishLoading: function () {
     App.setTool('pointer');
     App.setBrushSize(1);
-    App.selectItem(0);
-    App.selectSecondaryItem(0);
-    $('#loader', document).fadeOut('fast');
+    $('body', document).removeClass('loading');
   },
 
   loadItems: function () {
@@ -76,30 +74,31 @@ var App = {
       html.push('  <img src="' + item.image.src + '"/>');
       html.push('</div>');
       if(!layers.includes(item.layer)) layers.push(item.layer);
-      $('.item-list', document).append(html.join(''));
+      $('.palette', document).append(html.join(''));
     }
+    for(const layer of layers) {
+      $('.layer-list', document).append($('<option/>').attr('value', layer).text(layer));
+    }
+    App.refreshPalette();
 
-    $('.item-select', document).on('click', function () {
+    // events
+    $(document).on('click.item', '.item-select', function () {
       $('.item-select', document).removeClass('active');
       $(this).addClass('active');
       App.selectItem($(this).data('item-id'));
       App.setTool('brush');
     });
-    $('.sidebar', document).on('click mouseup mousedown mouseenter mouseout', function () {
+    $(document).on('click mouseup mousedown mouseenter mouseout', '.sidebar', function () {
       App.Dragging = false;
     });
-    for(const layer of layers) {
-      $('.layer-list', document).append($('<option/>').attr('value', layer).text(layer));
-    }
-
     $(document).on('change.layer', '.layer-list', App.refreshPalette);
-    App.refreshPalette();
 
     App.loader();
   },
 
   setBrushSize: function (size) {
     App.BrushSize = size;
+    $('#BrushSize', document).val(size);
     App.render();
   },
 
@@ -131,8 +130,8 @@ var App = {
     let item = App.getItem(id);
     if (!item) return;
     App.SelectedItem = item;
-    $('.actual-item-image', document).html('<img alt="' + item.id + '" src="' + item.image.src + '"/>');
-    $('.actual-item-details', document).html(item.name + ' (' + item.id + ')');
+    $('.selected-item-image', document).html('<img alt="' + item.id + '" src="' + item.image.src + '"/>');
+    $('.selected-item-details', document).html(item.name + ' (' + item.id + ')');
   },
 
   selectSecondaryItem: function (id) {
@@ -207,23 +206,26 @@ var App = {
       if (e.keyCode === 16) {
         e.preventDefault();
         App.ShiftDown = true;
-        $('body').css('cursor', 'alias');
+        $('.content', document).css('cursor', 'alias');
       }
 
       // [delete] -> remove highlighted item
       if (e.keyCode === 46) {
         if (App.HighlightedItem) {
           App.eraseOnTile(App.HighlightedItem.X,App.HighlightedItem.Y,App.HighlightedItem.Z);
-          // App.HighlightedItem = null;
-          App.render();
+          App.HighlightedItem = null;
         }
+        else {
+          App.eraseOnTile(App.CursorPosition.X,App.CursorPosition.Y,App.CurrentFloor);
+        }
+        App.render();
       }
     });
     $(document).on('keyup', function (e) {
       if (e.keyCode === 16) {
         e.preventDefault();
         App.ShiftDown = false;
-        $('body').css('cursor', 'default');
+        $('.content', document).css('cursor', 'default');
       }
     });
     App.loader();
@@ -298,6 +300,7 @@ var App = {
 
     App.Tool = tool;
     App.HighlightedItem = null;
+    tool.sizing ? $('#BrushSize', document).show() : $('#BrushSize', document).hide();
     $('[data-tool]', document).removeClass('active');
     $('[data-tool="' + tool.name + '"]', document).addClass('active');
     App.render();
@@ -379,7 +382,6 @@ var App = {
         App.RenderFromX = 0;
         App.RenderFromY = 0;
         App.render();
-        $('#wait', document).fadeOut('fast');
       };
       reader.readAsText(event.target.files[0]);
     });
