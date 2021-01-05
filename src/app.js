@@ -25,13 +25,17 @@ var App = {
 
   init: function () {
     App.Canvas.General = document.getElementById('map');
-    App.updateCanvasSize();
     App.loader();
   },
 
-  updateCanvasSize: function() {
+  setCanvasSize: function() {
     App.Canvas.General.width = document.querySelector('.content').clientWidth;
     App.Canvas.General.height = document.querySelector('.content').clientHeight;
+    for (let z in App.Canvas.Floor) if(App.Canvas.Floor.hasOwnProperty(z)) {
+      App.Canvas.Floor[z].width = App.Canvas.General.width;
+      App.Canvas.Floor[z].height = App.Canvas.General.height;
+    }
+    App.render();
   },
 
   loader: function () {
@@ -49,6 +53,7 @@ var App = {
   finishLoading: function () {
     App.setTool('pointer');
     App.setBrushSize(1);
+    App.setCanvasSize();
     $('body', document).removeClass('loading');
   },
 
@@ -97,6 +102,9 @@ var App = {
   },
 
   setBrushSize: function (size) {
+    if(size < 1 || size > 4) {
+      return;
+    }
     App.BrushSize = size;
     $('#BrushSize', document).val(size);
     App.render();
@@ -144,13 +152,15 @@ var App = {
   setFloors: function () {
     for (let z = Config.MinFloor; z <= Config.MaxFloor; z++) {
       App.Canvas.Floor[z] = document.createElement('canvas');
-      App.Canvas.Floor[z].width = App.Canvas.General.width;
-      App.Canvas.Floor[z].height = App.Canvas.General.height;
     }
     App.loader();
   },
 
   setKeyboardEvents: function () {
+    $(window).resize(function() {
+      App.setCanvasSize();
+    });
+
     $(document).on("keydown", function (e) {
 
       // [x] -> toggle primary/secondary item
@@ -186,19 +196,33 @@ var App = {
         App.setTool('brush');
       }
 
-      // [+] -> level up
-      if (e.keyCode === 107) {
+      // [PgUp] -> level up
+      if (e.keyCode === 33) {
         e.preventDefault();
         App.CurrentFloor = App.CurrentFloor + 1 > Config.MaxFloor ? App.CurrentFloor : App.CurrentFloor + 1;
         $('.pos-z', document).text('Z: ' + App.CurrentFloor);
         App.render();
       }
 
-      // [-] -> level down
-      if (e.keyCode === 109) {
+      // [PgDown] -> level down
+      if (e.keyCode === 34) {
         e.preventDefault();
         App.CurrentFloor = App.CurrentFloor - 1 < Config.MinFloor ? App.CurrentFloor : App.CurrentFloor - 1;
         $('.pos-z', document).text('Z: ' + App.CurrentFloor);
+        App.render();
+      }
+
+      // [+] -> increase brush size
+      if (e.keyCode === 107) {
+        e.preventDefault();
+        App.setBrushSize(App.BrushSize+1);
+        App.render();
+      }
+
+      // [-] -> reduce brush size
+      if (e.keyCode === 109) {
+        e.preventDefault();
+        App.setBrushSize(App.BrushSize-1);
         App.render();
       }
 
@@ -307,7 +331,7 @@ var App = {
   },
 
   drawOnTile: function (x, y, z) {
-    if (!App.SelectedItem) {
+    if (!App.SelectedItem || x < 0 || y < 0 || z < Config.MinFloor || z > Config.MaxFloor) {
       return;
     }
     if (!App.getTile(x,y,z)) {
@@ -405,6 +429,7 @@ var App = {
       }
 
       CTX = App.Canvas.Floor[z].getContext('2d');
+      CTX.lineWidth = 1;
       CTX.clearRect(0, 0, App.Canvas.Floor[z].width, App.Canvas.Floor[z].height);
       if(z !== 0 && z !== Config.MinFloor) {
         CTX.globalAlpha = 0.50;
