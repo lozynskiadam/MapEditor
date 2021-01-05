@@ -20,12 +20,10 @@ var App = {
   },
   CurrentFloor: 0,
 
-  MapRangeX: {},
-  MapRangeY: {},
+  RenderFromX: 0,
+  RenderFromY: 0,
 
   init: function () {
-    App.MapRangeX = {From: 0, To: 100};
-    App.MapRangeY = {From: 0, To: 100};
     App.Canvas.General = document.getElementById('map');
     App.updateCanvasSize();
     App.loader();
@@ -70,23 +68,33 @@ var App = {
 
   fillPalette: function () {
     let html = [];
+    let layers = [];
+
     for(const item of App.Items) {
       html = [];
       html.push('<div class="item-select" data-item-layer="' + item.layer + '" data-item-id="' + item.id + '" data-item-name="' + item.name + '">');
       html.push('  <img src="' + item.image.src + '"/>');
       html.push('</div>');
+      if(!layers.includes(item.layer)) layers.push(item.layer);
       $('.item-list', document).append(html.join(''));
     }
+
     $('.item-select', document).on('click', function () {
       $('.item-select', document).removeClass('active');
       $(this).addClass('active');
       App.selectItem($(this).data('item-id'));
       App.setTool('brush');
     });
-    $('.item-container', document).on('click mouseup mousedown mouseenter mouseout', function () {
+    $('.sidebar', document).on('click mouseup mousedown mouseenter mouseout', function () {
       App.Dragging = false;
     });
-    $('#Layer', document).on('change', App.refreshPalette).trigger('change');
+    for(const layer of layers) {
+      $('.layer-list', document).append($('<option/>').attr('value', layer).text(layer));
+    }
+
+    $(document).on('change.layer', '.layer-list', App.refreshPalette);
+    App.refreshPalette();
+
     App.loader();
   },
 
@@ -96,7 +104,7 @@ var App = {
   },
 
   refreshPalette: function () {
-    let layer = $('#Layer', document).val();
+    let layer = $('.layer-list', document).val();
     $('.item-select', document).hide();
     $('.item-select', document).each(function () {
       let itemLayer = $(this).data('item-layer');
@@ -241,12 +249,10 @@ var App = {
       let bounds = event.target.getBoundingClientRect();
       let x = (parseInt((event.clientX - bounds.left) / Config.TileSize) - (Config.MaxFloor - App.CurrentFloor));
       let y = (parseInt((event.clientY - bounds.top) / Config.TileSize) - (Config.MaxFloor - App.CurrentFloor));
-      x = App.MapRangeX.From + x;
-      y = App.MapRangeY.From + y;
-      x = x < App.MapRangeX.From ? App.MapRangeX.From : x;
-      y = y < App.MapRangeY.From ? App.MapRangeY.From : y;
-      x = x > App.MapRangeX.To ? App.MapRangeX.To : x;
-      y = y > App.MapRangeY.To ? App.MapRangeY.To : y;
+      x = App.RenderFromX + x;
+      y = App.RenderFromY + y;
+      x = x < App.RenderFromX ? App.RenderFromX : x;
+      y = y < App.RenderFromY ? App.RenderFromY : y;
       if (App.CursorPosition.X !== x || App.CursorPosition.Y !== y) {
         App.CursorPosition = {X: x, Y: y};
         $('.pos-x', document).text('X: ' + x);
@@ -370,8 +376,8 @@ var App = {
         } catch(e) {
           alert('Selected file is not a valid map editor file');
         }
-        App.MapRangeX.From = 0;
-        App.MapRangeY.From = 0;
+        App.RenderFromX = 0;
+        App.RenderFromY = 0;
         App.render();
         $('#wait', document).fadeOut('fast');
       };
@@ -405,15 +411,15 @@ var App = {
       CTX.fillRect(0, 0, App.Canvas.Floor[z].width, App.Canvas.Floor[z].height);
       CTX.globalAlpha = 1;
 
-      for (let y = App.MapRangeY.From; y <= App.MapRangeY.To; y++) {
-        for (let x = App.MapRangeX.From; x <= App.MapRangeX.To; x++) {
+      for (let y = App.RenderFromY; y <= App.RenderFromY + 100; y++) {
+        for (let x = App.RenderFromX; x <= App.RenderFromX + 100; x++) {
           if(!App.getTile(x,y,z)) {
             continue;
           }
           for (let stack in App.Area[z][y][x]) if (App.Area[z][y][x].hasOwnProperty(stack)) {
             let item = App.getItem(App.Area[z][y][x][stack]);
-            let drawX = (x - App.MapRangeX.From) * Config.TileSize + (Config.TileSize - item.image.width);
-            let drawY = (y - App.MapRangeY.From) * Config.TileSize + (Config.TileSize - item.image.height);
+            let drawX = (x - App.RenderFromX) * Config.TileSize + (Config.TileSize - item.image.width);
+            let drawY = (y - App.RenderFromY) * Config.TileSize + (Config.TileSize - item.image.height);
 
             // if highlighted
             if (App.HighlightedItem && x == App.HighlightedItem.X && y == App.HighlightedItem.Y && z == App.HighlightedItem.Z && item.id == App.HighlightedItem.Item.id && (parseInt(stack) + 1) === App.getTile(x,y,z).length) {
@@ -430,8 +436,8 @@ var App = {
 
       // render tool
       if (z === App.CurrentFloor && App.Tool.onRender) {
-        let x = ((App.CursorPosition.X - App.MapRangeX.From) * Config.TileSize);
-        let y = ((App.CursorPosition.Y - App.MapRangeY.From) * Config.TileSize);
+        let x = ((App.CursorPosition.X - App.RenderFromX) * Config.TileSize);
+        let y = ((App.CursorPosition.Y - App.RenderFromY) * Config.TileSize);
         App.Tool.onRender(x,y,z,CTX);
       }
     }

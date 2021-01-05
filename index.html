@@ -11,17 +11,13 @@
 </head>
 <body>
 
-<div class="item-container">
+<div class="sidebar">
   <div class="actual-item">
     <div class="actual-item-image"></div>
     <div class="secondary-item-image"></div>
     <div class="actual-item-details"></div>
   </div>
-  <select id="Layer">
-    <option value="ground" selected>ground</option>
-    <option value="edge">edge</option>
-    <option value="building">building</option>
-  </select>
+  <select class="layer-list"></select>
   <div class="item-list"></div>
 </div>
 
@@ -43,13 +39,8 @@
 
     <div class="menu-separator"></div>
 
-    <div data-action="import" class="menu-button">
-      <span>Import</span>
-    </div>
-
-    <div data-action="export" class="menu-button">
-      <span>Export</span>
-    </div>
+    <div data-action="import" class="menu-button"><span>Import</span></div>
+    <div data-action="export" class="menu-button"><span>Export</span></div>
 
   </div>
 

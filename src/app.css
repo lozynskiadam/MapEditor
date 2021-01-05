@@ -18,7 +18,7 @@ body {
   color: #333;
 }
 
-.item-container {
+.sidebar {
   position: relative;
   float: left;
   width: 236px;
@@ -54,7 +54,7 @@ body {
   cursor: default;
 }
 
-#Layer {
+.layer-list {
   width: 100%;
   padding: 2px;
   border: 1px solid #12131e;
