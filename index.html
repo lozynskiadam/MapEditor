@@ -4,9 +4,10 @@
   <title>MapEditor</title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2">
   <link type="text/css" rel="stylesheet" href="src/app.css"/>
-  <script src="config.js"></script>
   <script src="src/jquery-3.4.1.min.js"></script>
+  <script src="config.js"></script>
   <script src="src/app.js"></script>
+  <script src="src/tools.js"></script>
 </head>
 <body>
 
@@ -14,7 +15,7 @@
   <div class="actual-item">
     <div class="actual-item-image"></div>
     <div class="secondary-item-image"></div>
-    <div class="actual-item-details">- (0)</div>
+    <div class="actual-item-details"></div>
   </div>
   <select id="Layer">
     <option value="ground" selected>ground</option>
@@ -60,7 +61,6 @@
 </div>
 
 <div id="wait"></div>
-
 <div id="loader"></div>
 
 <script>
