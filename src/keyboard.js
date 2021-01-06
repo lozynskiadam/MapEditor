@@ -25,6 +25,21 @@ var Keyboard = {
     App.RenderFromX++;
     App.render();
   },
+
+  // [Q] -> set tool pointer
+  81: function() {
+    App.setTool('pointer');
+  },
+
+  // [W] -> set tool brush
+  87: function() {
+    App.setTool('brush');
+  },
+
+  // [E] -> set tool eraser
+  69: function() {
+    App.setTool('eraser');
+  },
   
   // [X] -> toggle primary/secondary item
   88: function() {
@@ -103,5 +118,4 @@ var Keyboard = {
     }
     App.render();
   },
-
 }

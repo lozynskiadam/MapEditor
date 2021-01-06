@@ -15,7 +15,7 @@ var App = {
   SelectedItem: null,
   SecondaryItem: null,
   HighlightedItem: null,
-  BrushSize: null,
+  BrushSize: 1,
   ShiftDown: false,
   CurrentFloor: 0,
   RenderFromX: 0,
@@ -87,14 +87,13 @@ var App = {
 
   finishLoading: function () {
     App.setTool('pointer');
-    App.setBrushSize(1);
     App.setCanvasSize();
     Events();
     $('body', document).removeClass('loading');
   },
 
   setBrushSize: function (size) {
-    if(size < 1 || size > 4) {
+    if(size < 1 || size > 4 || !App.SelectedTool.sizing) {
       return;
     }
     App.BrushSize = size;
@@ -268,18 +267,17 @@ var App = {
       CTX.fillRect(0, 0, App.Canvas.Floor[z].width, App.Canvas.Floor[z].height);
       CTX.globalAlpha = 1;
 
-      for (let y = App.RenderFromY; y <= App.RenderFromY + 100; y++) {
-        for (let x = App.RenderFromX; x <= App.RenderFromX + 100; x++) {
-          if(!App.getTile(x,y,z)) {
-            continue;
-          }
-          for (let stack in App.Map[z][y][x]) if (App.Map[z][y][x].hasOwnProperty(stack)) {
-            let item = App.getItem(App.Map[z][y][x][stack]);
+      for (let y = App.RenderFromY; y <= App.RenderFromY + (App.Canvas.General.height / Config.TileSize); y++) {
+        for (let x = App.RenderFromX; x <= App.RenderFromX + (App.Canvas.General.width / Config.TileSize); x++) {
+          let tile = App.getTile(x,y,z);
+          if(!tile) continue;
+          for (const [index,itemId] of tile.entries()) {
+            let item = App.getItem(itemId);
             let drawX = (x - App.RenderFromX) * Config.TileSize + (Config.TileSize - item.image.width);
             let drawY = (y - App.RenderFromY) * Config.TileSize + (Config.TileSize - item.image.height);
 
             // if highlighted
-            if (App.HighlightedItem && x == App.HighlightedItem.X && y == App.HighlightedItem.Y && z == App.HighlightedItem.Z && item.id == App.HighlightedItem.Item.id && (parseInt(stack) + 1) === App.getTile(x,y,z).length) {
+            if (App.HighlightedItem && x === App.HighlightedItem.X && y === App.HighlightedItem.Y && z === App.HighlightedItem.Z && item.id === App.HighlightedItem.Item.id && (parseInt(index) + 1) === App.getTile(x,y,z).length) {
               CTX.drawImage(item.image, drawX - 6, drawY - 6);
               CTX.globalCompositeOperation = 'lighter';
               CTX.drawImage(item.image, drawX - 6, drawY - 6);
