@@ -7,8 +7,11 @@
   <script src="src/jquery-3.4.1.min.js"></script>
   <script src="src/app.js"></script>
   <script src="src/tools.js"></script>
+  <script src="src/keyboard.js"></script>
+  <script src="src/events.js"></script>
   <script src="config.js"></script>
 </head>
+
 <body class="loading">
 
 <div class="sidebar">
@@ -48,9 +51,9 @@
 </div>
 
 <script>
-  $(function() {
+  window.onload = function () {
     App.init();
-  });
+  };
 </script>
 </body>
 </html>

@@ -1,25 +1,23 @@
 var App = {
 
-  Tool: null,
-  BrushSize: null,
   Items: [],
-  Area: {},
+  Map: {},
   Canvas: {
     General: null,
     Floor: {}
   },
-
-  SelectedItem: null,
-  SecondaryItem: null,
-  HighlightedItem: null,
-
-  ShiftDown: false,
   CursorPosition: {
     X: 0,
     Y: 0,
   },
-  CurrentFloor: 0,
 
+  SelectedTool: null,
+  SelectedItem: null,
+  SecondaryItem: null,
+  HighlightedItem: null,
+  BrushSize: null,
+  ShiftDown: false,
+  CurrentFloor: 0,
   RenderFromX: 0,
   RenderFromY: 0,
 
@@ -45,16 +43,7 @@ var App = {
     L === 1 && App.loadItems();
     L === 2 && App.fillPalette();
     L === 3 && App.setFloors();
-    L === 4 && App.setKeyboardEvents();
-    L === 5 && App.setMouseEvents();
-    L === 6 && App.finishLoading();
-  },
-
-  finishLoading: function () {
-    App.setTool('pointer');
-    App.setBrushSize(1);
-    App.setCanvasSize();
-    $('body', document).removeClass('loading');
+    L === 4 && App.finishLoading();
   },
 
   loadItems: function () {
@@ -86,19 +75,22 @@ var App = {
     }
     App.refreshPalette();
 
-    // events
-    $(document).on('click.item', '.item-select', function () {
-      $('.item-select', document).removeClass('active');
-      $(this).addClass('active');
-      App.selectItem($(this).data('item-id'));
-      App.setTool('brush');
-    });
-    $(document).on('click mouseup mousedown mouseenter mouseout', '.sidebar', function () {
-      App.Dragging = false;
-    });
-    $(document).on('change.layer', '.layer-list', App.refreshPalette);
-
     App.loader();
+  },
+
+  setFloors: function () {
+    for (let z = Config.MinFloor; z <= Config.MaxFloor; z++) {
+      App.Canvas.Floor[z] = document.createElement('canvas');
+    }
+    App.loader();
+  },
+
+  finishLoading: function () {
+    App.setTool('pointer');
+    App.setBrushSize(1);
+    App.setCanvasSize();
+    Events();
+    $('body', document).removeClass('loading');
   },
 
   setBrushSize: function (size) {
@@ -128,10 +120,10 @@ var App = {
   },
 
   getTile: function(x,y,z) {
-    if(!App.Area[z] || !App.Area[z][y] || !App.Area[z][y][x]) {
+    if(!App.Map[z] || !App.Map[z][y] || !App.Map[z][y][x]) {
       return null;
     }
-    return App.Area[z][y][x];
+    return App.Map[z][y][x];
   },
 
   selectItem: function (id) {
@@ -149,184 +141,22 @@ var App = {
     $('.secondary-item-image', document).html('<img alt="' + item.id + '" src="' + item.image.src + '"/>');
   },
 
-  setFloors: function () {
-    for (let z = Config.MinFloor; z <= Config.MaxFloor; z++) {
-      App.Canvas.Floor[z] = document.createElement('canvas');
-    }
-    App.loader();
-  },
-
-  setKeyboardEvents: function () {
-    $(window).resize(function() {
-      App.setCanvasSize();
-    });
-
-    $(document).on("keydown", function (e) {
-
-      // [x] -> toggle primary/secondary item
-      if (e.keyCode === 88) {
-        e.preventDefault();
-        let SelectedItem = App.SelectedItem;
-        let SecondaryItem = App.SecondaryItem;
-        if (SecondaryItem) {
-          App.selectItem(SecondaryItem.id);
-        }
-        if (SelectedItem) {
-          App.selectSecondaryItem(SelectedItem.id);
-        }
-        $('#item-preview', document).remove();
-        App.setTool('brush');
-      }
-
-      // [tab] -> select hovered/highlighted item
-      if (e.keyCode === 9) {
-        e.preventDefault();
-        if (App.HighlightedItem) {
-          App.selectItem(App.HighlightedItem.Item.id);
-        } else {
-          let x = App.CursorPosition.X;
-          let y = App.CursorPosition.Y;
-          let z = App.CurrentFloor;
-          if (!App.getTile(x,y,z) || App.getTile(x,y,z).length === 0) {
-            return;
-          }
-          let itemId = App.getTile(x,y,z).slice(-1)[0];
-          App.selectItem(itemId);
-        }
-        App.setTool('brush');
-      }
-
-      // [PgUp] -> level up
-      if (e.keyCode === 33) {
-        e.preventDefault();
-        App.CurrentFloor = App.CurrentFloor + 1 > Config.MaxFloor ? App.CurrentFloor : App.CurrentFloor + 1;
-        $('.pos-z', document).text('Z: ' + App.CurrentFloor);
-        App.render();
-      }
-
-      // [PgDown] -> level down
-      if (e.keyCode === 34) {
-        e.preventDefault();
-        App.CurrentFloor = App.CurrentFloor - 1 < Config.MinFloor ? App.CurrentFloor : App.CurrentFloor - 1;
-        $('.pos-z', document).text('Z: ' + App.CurrentFloor);
-        App.render();
-      }
-
-      // [+] -> increase brush size
-      if (e.keyCode === 107) {
-        e.preventDefault();
-        App.setBrushSize(App.BrushSize+1);
-        App.render();
-      }
-
-      // [-] -> reduce brush size
-      if (e.keyCode === 109) {
-        e.preventDefault();
-        App.setBrushSize(App.BrushSize-1);
-        App.render();
-      }
-
-      // [shift] -> allow stacking items on same layer while drawing
-      if (e.keyCode === 16) {
-        e.preventDefault();
-        App.ShiftDown = true;
-        $('.content', document).css('cursor', 'alias');
-      }
-
-      // [delete] -> remove highlighted item
-      if (e.keyCode === 46) {
-        if (App.HighlightedItem) {
-          App.eraseOnTile(App.HighlightedItem.X,App.HighlightedItem.Y,App.HighlightedItem.Z);
-          App.HighlightedItem = null;
-        }
-        else {
-          App.eraseOnTile(App.CursorPosition.X,App.CursorPosition.Y,App.CurrentFloor);
-        }
-        App.render();
-      }
-    });
-    $(document).on('keyup', function (e) {
-      if (e.keyCode === 16) {
-        e.preventDefault();
-        App.ShiftDown = false;
-        $('.content', document).css('cursor', 'default');
-      }
-    });
-    App.loader();
-  },
-
-  setMouseEvents: function () {
-    $(document).on("mousedown mouseup click focus blur contextmenu mousewheel DOMMouseScroll wheel", function (e) {
-      if (e.which === 3) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    });
-
-    $(document).on('mousedown', function (e) {
-      App.Dragging = e.which === 1;
-    });
-
-    $(document).on('mouseup', function () {
-      App.Dragging = false;
-    });
-
-    $('#map', document).on('mousemove', function (event) {
-      let bounds = event.target.getBoundingClientRect();
-      let x = (parseInt((event.clientX - bounds.left) / Config.TileSize) - (Config.MaxFloor - App.CurrentFloor));
-      let y = (parseInt((event.clientY - bounds.top) / Config.TileSize) - (Config.MaxFloor - App.CurrentFloor));
-      x = App.RenderFromX + x;
-      y = App.RenderFromY + y;
-      x = x < App.RenderFromX ? App.RenderFromX : x;
-      y = y < App.RenderFromY ? App.RenderFromY : y;
-      if (App.CursorPosition.X !== x || App.CursorPosition.Y !== y) {
-        App.CursorPosition = {X: x, Y: y};
-        $('.pos-x', document).text('X: ' + x);
-        $('.pos-y', document).text('Y: ' + y);
-        $('.pos-z', document).text('Z: ' + App.CurrentFloor);
-        if (App.Dragging && App.Tool.onDrag) {
-          App.Tool.onDrag(App.CursorPosition.X, App.CursorPosition.Y, App.CurrentFloor);
-        }
-        App.render();
-      }
-    });
-
-    $('#map', document).on('mousedown', function (e) {
-      if (e.which === 3) {
-        App.setTool('pointer');
-        App.highlightOnTile(App.CursorPosition.X, App.CursorPosition.Y, App.CurrentFloor);
-        return;
-      }
-      if (!(e.which === 1)) {
-        return;
-      }
-      if(App.Tool.onClick) {
-        App.Tool.onClick(App.CursorPosition.X, App.CursorPosition.Y, App.CurrentFloor);
-      }
-      App.render();
-    });
-
-    $('[data-tool]', document).on('click', function () {
-      App.setTool($(this).data('tool'));
-    });
-    $('#BrushSize', document).on('change', function () {
-      App.setBrushSize(parseInt($(this).val()));
-    });
-    $('[data-action="import"]', document).on('click', App.import);
-    $('[data-action="export"]', document).on('click', App.export);
-
-    App.loader();
-  },
-
   setTool: function(name) {
     let tool = Tools.filter(tool => tool.name === name)[0];
     if(!tool) return;
 
-    App.Tool = tool;
+    App.SelectedTool = tool;
     App.HighlightedItem = null;
     tool.sizing ? $('#BrushSize', document).show() : $('#BrushSize', document).hide();
     $('[data-tool]', document).removeClass('active');
     $('[data-tool="' + tool.name + '"]', document).addClass('active');
+    App.render();
+  },
+
+  setCurrentFloor: function(z) {
+    if(z < Config.MinFloor || z > Config.MaxFloor) return;
+    App.CurrentFloor = z;
+    $('.pos-z', document).text('Z: ' + App.CurrentFloor);
     App.render();
   },
 
@@ -335,16 +165,16 @@ var App = {
       return;
     }
     if (!App.getTile(x,y,z)) {
-        App.Area[z] = App.Area[z] || {};
-        App.Area[z][y] = App.Area[z][y] || {};
-        App.Area[z][y][x] = App.Area[z][y][x] || [];
+        App.Map[z] = App.Map[z] || {};
+        App.Map[z][y] = App.Map[z][y] || {};
+        App.Map[z][y][x] = App.Map[z][y][x] || [];
     }
     let drawn = false;
 
     // Map editor allows to draw only one item of type on each tile (unless its not a ground and "shift" is pressed)
     if (!App.ShiftDown) {
-      for (let key in App.Area[z][y][x]) if (App.Area[z][y][x].hasOwnProperty(key)) {
-        let item = App.getItem(App.Area[z][y][x][key]);
+      for (let key in App.Map[z][y][x]) if (App.Map[z][y][x].hasOwnProperty(key)) {
+        let item = App.getItem(App.Map[z][y][x][key]);
         if (item.layer === App.SelectedItem.layer) {
           if (!drawn) {
             App.getTile(x,y,z)[key] = App.SelectedItem.id;
@@ -377,17 +207,17 @@ var App = {
     hardClear ? tile.length = 0 : tile.pop();
 
     if(tile.length === 0) {
-      delete App.Area[z][y][x];
-      if(Object.keys(App.Area[z][y]).length === 0) delete App.Area[z][y];
-      if(Object.keys(App.Area[z]).length === 0) delete App.Area[z];
+      delete App.Map[z][y][x];
+      if(Object.keys(App.Map[z][y]).length === 0) delete App.Map[z][y];
+      if(Object.keys(App.Map[z]).length === 0) delete App.Map[z];
     }
   },
 
   highlightOnTile: function (x, y, z) {
-    if (!App.Area[z] || !App.Area[z][y] || !App.Area[z][y][x] || App.Area[z][y][x].length === 0) {
+    if (!App.Map[z] || !App.Map[z][y] || !App.Map[z][y][x] || App.Map[z][y][x].length === 0) {
       return;
     }
-    App.HighlightedItem = {Item: App.getItem(App.Area[z][y][x].slice(-1)[0]), X: x, Y: y, Z: z};
+    App.HighlightedItem = {Item: App.getItem(App.Map[z][y][x].slice(-1)[0]), X: x, Y: y, Z: z};
     App.render();
   },
 
@@ -399,7 +229,7 @@ var App = {
       let reader = new FileReader();
       reader.onload = function(event) {
         try {
-          App.Area = JSON.parse(event.target.result);
+          App.Map = JSON.parse(event.target.result);
         } catch(e) {
           alert('Selected file is not a valid map editor file');
         }
@@ -415,7 +245,7 @@ var App = {
   export: function () {
     let file = document.createElement("a")
     file.download = "map.json"
-    file.href = URL.createObjectURL(new Blob([JSON.stringify(App.Area, null, 2)]))
+    file.href = URL.createObjectURL(new Blob([JSON.stringify(App.Map, null, 2)]))
     file.click()
   },
 
@@ -443,8 +273,8 @@ var App = {
           if(!App.getTile(x,y,z)) {
             continue;
           }
-          for (let stack in App.Area[z][y][x]) if (App.Area[z][y][x].hasOwnProperty(stack)) {
-            let item = App.getItem(App.Area[z][y][x][stack]);
+          for (let stack in App.Map[z][y][x]) if (App.Map[z][y][x].hasOwnProperty(stack)) {
+            let item = App.getItem(App.Map[z][y][x][stack]);
             let drawX = (x - App.RenderFromX) * Config.TileSize + (Config.TileSize - item.image.width);
             let drawY = (y - App.RenderFromY) * Config.TileSize + (Config.TileSize - item.image.height);
 
@@ -462,10 +292,10 @@ var App = {
       }
 
       // render tool
-      if (z === App.CurrentFloor && App.Tool.onRender) {
+      if (z === App.CurrentFloor && App.SelectedTool.onRender) {
         let x = ((App.CursorPosition.X - App.RenderFromX) * Config.TileSize);
         let y = ((App.CursorPosition.Y - App.RenderFromY) * Config.TileSize);
-        App.Tool.onRender(x,y,z,CTX);
+        App.SelectedTool.onRender(x,y,z,CTX);
       }
     }
 
