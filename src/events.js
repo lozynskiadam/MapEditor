@@ -38,6 +38,7 @@ var Events = function() {
   });
 
   $(document).on('change.layer', '.layer-list', App.refreshPalette);
+  $(document).on('click.new', '[data-action="new"]', App.new);
   $(document).on('click.open', '[data-action="open"]', App.open);
   $(document).on('click.save', '[data-action="save"]', App.save);
 

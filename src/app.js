@@ -220,6 +220,13 @@ var App = {
     App.render();
   },
 
+  new: function() {
+    App.Map = {};
+    App.RenderFromX = 0;
+    App.RenderFromY = 0;
+    App.render();
+  },
+
   open: function () {
     let file = document.createElement("input");
     file.type = "file";

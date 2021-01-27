@@ -175,8 +175,7 @@ body.loading {
   height: 25px;
   padding: 3px;
   color: #e0e0e0;
-  font-weight: bold;
-  line-height: 18px;
+  line-height: 16px;
   border-radius: 2px;
   border: 1px solid transparent;
 }
