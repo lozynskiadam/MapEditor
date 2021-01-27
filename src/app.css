@@ -11,7 +11,7 @@ html {
 body {
   padding: 0;
   margin: 0;
-  background-color: #000;
+  background-color: #282828;
   font-family: 'Tahoma', monospace;
   font-size: 13px;
   overflow-x: hidden;
@@ -27,23 +27,11 @@ body.loading {
   width: 236px;
   height: 100%;
   max-height: 100%;
-  background-color: #2b3944;
+  background-color: #535353;
   color: #eee;
   overflow: hidden;
   z-index: 3;
-  border-right: 2px solid #0b0f12;
-}
-.navbar {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  background-color: #181f26;
-  border-bottom: 2px solid #0b0f12;
-  z-index: 2;
-  padding: 3px 10px 0 240px;
-  height: 32px;
-  cursor: default;
+  box-shadow: 0 0 5px #000;
 }
 .content {
   margin-top: 32px;
@@ -53,22 +41,24 @@ body.loading {
   max-height: 100%;
   overflow-x: hidden;
   overflow-y: hidden;
-  background-color: #090b0e;
   z-index: 1;
 }
 .layer-list {
-  width: 100%;
+  width: calc(100% - 6px);
   padding: 2px;
-  border: 1px solid #12131e;
+  margin: 3px;
   color: #eee;
+  border: 1px solid #2c2c2c;
+  border-radius: 2px;
   height: 25px;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
   background-image: url(ui.png);
   background-repeat: no-repeat;
-  background-color: #181f26;
+  background-color: #6f6f6f;
   background-position: right 0 top -90px;
+  box-shadow: inset 0 1px 3px #757575;
 }
 .selected-item {
   position: relative;
@@ -80,8 +70,10 @@ body.loading {
   position: absolute;
   width: 68px;
   height: 68px;
-  border: 2px inset #141414;
-  background-color: #181f26;
+  border: 2px inset #2c2c2c;
+  border-radius: 2px;
+  background: rgb(63,63,63);
+  background: linear-gradient(180deg, rgba(63,63,63,1) 0%, rgba(55,55,55,1) 100%);
 }
 .selected-item-image {
   top: 15px;
@@ -111,8 +103,8 @@ body.loading {
 }
 .palette {
   overflow-y: scroll;
-  scrollbar-color: rgba(255, 252, 243, 0.5) #181f26;
-  height: calc(100vh - 145px);
+  scrollbar-color: #505050 rgba(0,0,0,0.25);
+  height: calc(100vh - 152px);
   background-color: rgba(0,0,0,0.25)
 }
 .palette .item-select {
@@ -120,20 +112,33 @@ body.loading {
   position: relative;
   cursor: pointer;
   user-select: none;
-  border: 2px outset #181f26;
+  border: 2px outset #2c2c2c;
   width: 36px;
   height: 36px;
 }
 .palette .item-select.active {
-  border: 2px inset #b37f00;
-  background-color: rgba(0, 0, 0, 0.47);
   color: #fff;
+  border: 2px ridge #ffcb00;
+  background-color: rgba(0, 0, 0, 0.47);
+  box-shadow: 0 0 2px #ebff00;
 }
 .palette .item-select img {
   width: 32px;
   height: 32px;
   object-fit: cover;
   object-position: 0 0;
+}
+.navbar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 237px;
+  background-color: #535353;
+  box-shadow: 0 0 5px #000;
+  z-index: 2;
+  padding: 4px 10px 0 6px;
+  height: 32px;
+  cursor: default;
 }
 .navbar .pos {
   float: right;
@@ -142,8 +147,11 @@ body.loading {
 .navbar .pos div {
   display: inline-block;
   width: 55px;
-  background-color: #364856;
   color: #eee;
+  background: rgb(63,63,63);
+  background: linear-gradient(180deg, rgba(63,63,63,1) 0%, rgba(55,55,55,1) 100%);
+  border: 1px solid #2c2c2c;
+  border-radius: 2px;
   padding: 2px 4px;
 }
 .navbar .menu-buttons {
@@ -154,7 +162,7 @@ body.loading {
   height: 24px;
   padding: 3px 2px 3px 3px;
   line-height: 18px;
-  border-left: 4px double #0c0e11;
+  border-left: 1px solid #383838;
   margin-left: 5px;
 }
 .navbar .menu-buttons .menu-separator::before {
@@ -164,22 +172,25 @@ body.loading {
   display: inline-block;
   position: relative;
   text-align: center;
-  border: 1px outset #888;
   height: 25px;
   padding: 3px;
-  background-color: #13191e;
   color: #e0e0e0;
   font-weight: bold;
   line-height: 18px;
-  transition: all .2s;
+  border-radius: 2px;
+  border: 1px solid transparent;
 }
 .navbar .menu-buttons .menu-button:hover {
-  background-color: #293540;
+  background: rgb(145,145,145);
+  background: linear-gradient(180deg, rgba(145,145,145,1) 0%, rgba(117,117,117,1) 2%, rgba(98,98,98,1) 100%);
+  border: 1px solid #2c2c2c;
 }
 .navbar .menu-buttons .menu-button.active {
-  border: 1px inset #888;
-  background-color: #455764 !important;
   color: #bbb;
+  background: rgb(63,63,63);
+  background: linear-gradient(180deg, rgba(63,63,63,1) 0%, rgba(55,55,55,1) 100%);
+  border: 1px solid #2c2c2c;
+  box-shadow: 0 1px 1px #636363;
 }
 .navbar .menu-buttons .menu-button[disabled] {
   background-color: #b6b6b6 !important;
@@ -190,6 +201,9 @@ body.loading {
 }
 .navbar .menu-buttons .menu-button[type="range"] {
   -webkit-appearance: none;
+  border: 1px solid #2c2c2c;
+  background: rgb(63,63,63);
+  background: linear-gradient(180deg, rgba(63,63,63,1) 0%, rgba(55,55,55,1) 100%);
   height: 8px !important;
   width: 100px;
 }
@@ -199,7 +213,8 @@ body.loading {
   appearance: none;
   width: 8px;
   height: 20px;
-  background: #3a4148;
+  background: rgb(145,145,145);
+  background: linear-gradient(180deg, rgba(145,145,145,1) 0%, rgba(98,98,98,1) 100%);
   border: 1px outset #525860;
   border-radius: 0;
   cursor: pointer;
@@ -209,7 +224,7 @@ body.loading {
   position: absolute;
   left: 5px;
   top: 5px;
-  width: 15px;
+  width: 17px;
   height: 15px;
   background-image: url('ui.png');
   background-repeat: no-repeat;
@@ -223,9 +238,13 @@ body.loading {
 [data-tool="eraser"]::after {
   background-position: left 0 top -30px;
 }
-[data-action="import"]::after {
+
+[data-action="new"]::after {
+  background-position: left 0 top -60px;
+}
+[data-action="open"]::after {
   background-position: left 0 top -75px;
 }
-[data-action="export"]::after {
-  background-position: left 0 top -60px;
+[data-action="save"]::after {
+  background-position: left 0 top -114px;
 }

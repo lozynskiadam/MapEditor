@@ -38,8 +38,8 @@ var Events = function() {
   });
 
   $(document).on('change.layer', '.layer-list', App.refreshPalette);
-  $(document).on('click.import', '[data-action="import"]', App.import);
-  $(document).on('click.export', '[data-action="export"]', App.export);
+  $(document).on('click.open', '[data-action="open"]', App.open);
+  $(document).on('click.save', '[data-action="save"]', App.save);
 
   $(document).on('mousemove.map', '#map', function (event) {
     let bounds = event.target.getBoundingClientRect();

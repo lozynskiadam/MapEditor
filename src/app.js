@@ -220,10 +220,10 @@ var App = {
     App.render();
   },
 
-  import: function () {
-    let file = document.createElement("input")
-    file.type = "file"
-    file.accept = "application/JSON"
+  open: function () {
+    let file = document.createElement("input");
+    file.type = "file";
+    file.accept = "application/JSON";
     file.addEventListener('change', (event) => {
       let reader = new FileReader();
       reader.onload = function(event) {
@@ -241,10 +241,10 @@ var App = {
     file.click();
   },
 
-  export: function () {
-    let file = document.createElement("a")
-    file.download = "map.json"
-    file.href = URL.createObjectURL(new Blob([JSON.stringify(App.Map, null, 2)]))
+  save: function () {
+    let file = document.createElement("a");
+    file.download = "map.json";
+    file.href = URL.createObjectURL(new Blob([JSON.stringify(App.Map, null, 2)]));
     file.click()
   },
 
