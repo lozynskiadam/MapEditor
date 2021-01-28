@@ -17,6 +17,7 @@ var App = {
   HighlightedItem: null,
   BrushSize: 1,
   ShiftDown: false,
+  TabDown: false,
   CurrentFloor: 0,
   RenderFromX: 0,
   RenderFromY: 0,
@@ -149,6 +150,7 @@ var App = {
     tool.sizing ? $('#BrushSize', document).show() : $('#BrushSize', document).hide();
     $('[data-tool]', document).removeClass('active');
     $('[data-tool="' + tool.name + '"]', document).addClass('active');
+    $('.content', document).css('cursor', tool.cursor ? tool.cursor : 'default');
     App.render();
   },
 

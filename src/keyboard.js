@@ -40,7 +40,19 @@ var Keyboard = {
   69: function() {
     App.setTool('eraser');
   },
-  
+
+  // [R] -> set tool sampler
+  9: function() {
+    App.TabDown = true;
+    App.setTool('sampler');
+  },
+
+  // [Tab] -> select hovered/highlighted item
+  82: function() {
+    App.TabDown = true;
+    App.setTool('sampler');
+  },
+
   // [X] -> toggle primary/secondary item
   88: function() {
     let SelectedItem = App.SelectedItem;
@@ -51,24 +63,6 @@ var Keyboard = {
     if (SelectedItem) {
       App.selectSecondaryItem(SelectedItem.id);
     }
-    App.setTool('brush');
-  },
-  
-  // [Tab] -> select hovered/highlighted item
-  9: function() {
-    if (App.HighlightedItem) {
-      App.selectItem(App.HighlightedItem.Item.id);
-    } else {
-      let x = App.CursorPosition.X;
-      let y = App.CursorPosition.Y;
-      let z = App.CurrentFloor;
-      if (!App.getTile(x,y,z) || App.getTile(x,y,z).length === 0) {
-        return;
-      }
-      let itemId = App.getTile(x,y,z).slice(-1)[0];
-      App.selectItem(itemId);
-    }
-    App.setTool('brush');
   },
   
   // [PgUp] -> higher floor
@@ -118,4 +112,5 @@ var Keyboard = {
     }
     App.render();
   },
-}
+
+};

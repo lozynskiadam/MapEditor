@@ -79,4 +79,31 @@ var Tools = [
       }
     }
   },
+
+  {
+    name: 'sampler',
+    sizing: false,
+    cursor: 'crosshair',
+    onClick: function(x, y, z) {
+      if (!App.getTile(x,y,z) || App.getTile(x,y,z).length === 0) {
+        return;
+      }
+      let itemId = App.getTile(x,y,z).slice(-1)[0];
+      App.selectItem(itemId);
+    },
+    onDrag: function(x, y, z) {
+      if (!App.getTile(x,y,z) || App.getTile(x,y,z).length === 0) {
+        return;
+      }
+      let itemId = App.getTile(x,y,z).slice(-1)[0];
+      App.selectItem(itemId);
+    },
+    onRender: function(x, y, z, CTX) {
+      CTX.lineWidth = 1;
+      CTX.strokeStyle = "#ffffff";
+      CTX.strokeRect(x + 0.5, y + 0.5, (Config.TileSize-1), (Config.TileSize-1));
+      CTX.strokeStyle = "#000000";
+      CTX.strokeRect(x + 1, y + 1, (Config.TileSize-1), (Config.TileSize-1));
+    }
+  },
 ];

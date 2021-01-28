@@ -91,4 +91,13 @@ var Events = function() {
       $('.content', document).css('cursor', 'default');
     }
   });
-}
+
+  $(document).on('keyup', function (e) {
+    if (e.keyCode === 9) {
+      e.preventDefault();
+      App.TabDown = false;
+      App.setTool('brush');
+    }
+  });
+
+};

@@ -237,6 +237,9 @@ body.loading {
 [data-tool="eraser"]::after {
   background-position: left 0 top -30px;
 }
+[data-tool="sampler"]::after {
+  background-position: left 0 top -132px;
+}
 
 [data-action="new"]::after {
   background-position: left 0 top -60px;
