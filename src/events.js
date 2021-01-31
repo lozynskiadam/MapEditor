@@ -11,6 +11,15 @@ var Events = function() {
     App.Dragging = false;
   });
 
+  $(document).on('wheel', function(e) {
+    if (e.originalEvent.deltaY < 0) {
+      App.setBrushSize(App.BrushSize+1);
+    }
+    else {
+      App.setBrushSize(App.BrushSize-1);
+    }
+  });
+
   $(document).on('click.tool', '[data-tool]', function () {
     App.setTool($(this).data('tool'));
   });
