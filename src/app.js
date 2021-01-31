@@ -4,6 +4,7 @@ var App = {
   Map: {},
   Canvas: {
     General: null,
+    HUD: null,
     Floor: {}
   },
   CursorPosition: {
@@ -16,35 +17,18 @@ var App = {
   SecondaryItem: null,
   HighlightedItem: null,
   BrushSize: 1,
-  ShiftDown: false,
-  TabDown: false,
   CurrentFloor: 0,
   RenderFromX: 0,
   RenderFromY: 0,
 
-  init: function () {
-    App.Canvas.General = document.getElementById('map');
-    App.loader();
-  },
-
-  setCanvasSize: function() {
-    App.Canvas.General.width = document.querySelector('.content').clientWidth;
-    App.Canvas.General.height = document.querySelector('.content').clientHeight;
-    for (let z in App.Canvas.Floor) if(App.Canvas.Floor.hasOwnProperty(z)) {
-      App.Canvas.Floor[z].width = App.Canvas.General.width;
-      App.Canvas.Floor[z].height = App.Canvas.General.height;
-    }
-    App.render();
-  },
-
   loader: function () {
-    typeof window.LoadingIndex == 'undefined' ? window.LoadingIndex = 1 : window.LoadingIndex++;
-    let L = window.LoadingIndex;
-
-    L === 1 && App.loadItems();
-    L === 2 && App.fillPalette();
-    L === 3 && App.setFloors();
-    L === 4 && App.finishLoading();
+    typeof window.LoadOrder == 'undefined' ? window.LoadOrder = 0 : window.LoadOrder++;
+    [
+      App.loadItems,
+      App.fillPalette,
+      App.prepareCanvases,
+      App.finishLoading,
+    ][LoadOrder]();
   },
 
   loadItems: function () {
@@ -79,22 +63,37 @@ var App = {
     App.loader();
   },
 
-  setFloors: function () {
+  prepareCanvases: function () {
+    App.Canvas.General = document.getElementById('map');
     for (let z = Config.MinFloor; z <= Config.MaxFloor; z++) {
       App.Canvas.Floor[z] = document.createElement('canvas');
     }
+    App.Canvas.HUD = document.createElement('canvas');
     App.loader();
   },
 
   finishLoading: function () {
     App.setTool('pointer');
+    App.setBrushSize(1);
     App.setCanvasSize();
     Events();
     $('.loading', document).hide('fade');
   },
 
+  setCanvasSize: function() {
+    App.Canvas.General.width = document.querySelector('.content').clientWidth;
+    App.Canvas.General.height = document.querySelector('.content').clientHeight;
+    App.Canvas.HUD.width = App.Canvas.General.width;
+    App.Canvas.HUD.height = App.Canvas.General.height;
+    for (let z in App.Canvas.Floor) if(App.Canvas.Floor.hasOwnProperty(z)) {
+      App.Canvas.Floor[z].width = App.Canvas.General.width;
+      App.Canvas.Floor[z].height = App.Canvas.General.height;
+    }
+    App.render();
+  },
+
   setBrushSize: function (size) {
-    if(size < 1 || size > 4 || !App.SelectedTool.sizing) {
+    if(size < 1 || size > 4) {
       return;
     }
     App.BrushSize = size;
@@ -144,6 +143,7 @@ var App = {
   setTool: function(name) {
     let tool = Tools.filter(tool => tool.name === name)[0];
     if(!tool) return;
+    if(App.SelectedTool === tool) return;
 
     App.SelectedTool = tool;
     App.HighlightedItem = null;
@@ -151,7 +151,7 @@ var App = {
     $('[data-tool]', document).removeClass('active');
     $('[data-tool="' + tool.name + '"]', document).addClass('active');
     $('.content', document).css('cursor', tool.cursor ? tool.cursor : 'default');
-    App.render();
+    App.render('current');
   },
 
   setCurrentFloor: function(z) {
@@ -173,7 +173,7 @@ var App = {
     let drawn = false;
 
     // Map editor allows to draw only one item of type on each tile (unless its not a ground and "shift" is pressed)
-    if (!App.ShiftDown) {
+    if (!window.ShiftDown) {
       for (let key in App.Map[z][y][x]) if (App.Map[z][y][x].hasOwnProperty(key)) {
         let item = App.getItem(App.Map[z][y][x][key]);
         if (item.layer === App.SelectedItem.layer) {
@@ -295,53 +295,61 @@ var App = {
     });
   },
 
-  render: function () {
+  render: function (floor = 'all') {
     let CTX;
-    for (let z = Config.MinFloor; z <= Config.MaxFloor; z++) {
 
-      // do not render not visible floors
-      if (!(App.CurrentFloor - z < 5) || (App.CurrentFloor >= 0 && z < 0)) {
-        continue;
-      }
+    if(floor === 'all' || floor === 'current') {
+      for (let z = Config.MinFloor; z <= Config.MaxFloor; z++) {
 
-      CTX = App.Canvas.Floor[z].getContext('2d');
-      CTX.lineWidth = 1;
-      CTX.clearRect(0, 0, App.Canvas.Floor[z].width, App.Canvas.Floor[z].height);
-      if(z !== 0 && z !== Config.MinFloor) {
-        CTX.globalAlpha = 0.50;
-      }
-      CTX.fillStyle = "#000000";
-      CTX.fillRect(0, 0, App.Canvas.Floor[z].width, App.Canvas.Floor[z].height);
-      CTX.globalAlpha = 1;
+        if (floor === 'current' && z !== App.CurrentFloor) {
+          continue;
+        }
 
-      for (let y = App.RenderFromY; y <= App.RenderFromY + (App.Canvas.General.height / Config.TileSize); y++) {
-        for (let x = App.RenderFromX; x <= App.RenderFromX + (App.Canvas.General.width / Config.TileSize); x++) {
-          let tile = App.getTile(x,y,z);
-          if(!tile) continue;
-          for (const [index,itemId] of tile.entries()) {
-            let item = App.getItem(itemId);
-            let drawX = (x - App.RenderFromX) * Config.TileSize + (Config.TileSize - item.image.width);
-            let drawY = (y - App.RenderFromY) * Config.TileSize + (Config.TileSize - item.image.height);
+        if (z > App.CurrentFloor || (App.CurrentFloor >= 0 && z < 0)) {
+          continue;
+        }
 
-            // if highlighted
-            if (App.HighlightedItem && x === App.HighlightedItem.X && y === App.HighlightedItem.Y && z === App.HighlightedItem.Z && item.id === App.HighlightedItem.Item.id && (parseInt(index) + 1) === App.getTile(x,y,z).length) {
-              CTX.drawImage(item.image, drawX - 6, drawY - 6);
-              CTX.globalCompositeOperation = 'lighter';
-              CTX.drawImage(item.image, drawX - 6, drawY - 6);
-              CTX.globalCompositeOperation = 'source-over';
-            } else {
-              CTX.drawImage(item.image, drawX, drawY);
+        CTX = App.Canvas.Floor[z].getContext('2d');
+        CTX.lineWidth = 1;
+        CTX.clearRect(0, 0, App.Canvas.Floor[z].width, App.Canvas.Floor[z].height);
+        if (z !== 0 && z !== Config.MinFloor) {
+          CTX.globalAlpha = 0.50;
+        }
+        CTX.fillStyle = "#000000";
+        CTX.fillRect(0, 0, App.Canvas.Floor[z].width, App.Canvas.Floor[z].height);
+        CTX.globalAlpha = 1;
+
+        for (let y = App.RenderFromY; y <= App.RenderFromY + (App.Canvas.General.height / Config.TileSize); y++) {
+          for (let x = App.RenderFromX; x <= App.RenderFromX + (App.Canvas.General.width / Config.TileSize); x++) {
+            let tile = App.getTile(x, y, z);
+            if (!tile) continue;
+            for (const [index, itemId] of tile.entries()) {
+              let item = App.getItem(itemId);
+              let drawX = (x - App.RenderFromX) * Config.TileSize + (Config.TileSize - item.image.width);
+              let drawY = (y - App.RenderFromY) * Config.TileSize + (Config.TileSize - item.image.height);
+
+              // if highlighted
+              if (App.HighlightedItem && x === App.HighlightedItem.X && y === App.HighlightedItem.Y && z === App.HighlightedItem.Z && item.id === App.HighlightedItem.Item.id && (parseInt(index) + 1) === App.getTile(x, y, z).length) {
+                CTX.drawImage(item.image, drawX - 6, drawY - 6);
+                CTX.globalCompositeOperation = 'lighter';
+                CTX.drawImage(item.image, drawX - 6, drawY - 6);
+                CTX.globalCompositeOperation = 'source-over';
+              } else {
+                CTX.drawImage(item.image, drawX, drawY);
+              }
             }
           }
         }
       }
+    }
 
-      // render tool
-      if (z === App.CurrentFloor && App.SelectedTool.onRender) {
-        let x = ((App.CursorPosition.X - App.RenderFromX) * Config.TileSize);
-        let y = ((App.CursorPosition.Y - App.RenderFromY) * Config.TileSize);
-        App.SelectedTool.onRender(x,y,z,CTX);
-      }
+    // HUD
+    if (App.SelectedTool.onRender) {
+      CTX = App.Canvas.HUD.getContext('2d');
+      CTX.clearRect(0, 0, App.Canvas.HUD.width, App.Canvas.HUD.height);
+      let x = ((App.CursorPosition.X - App.RenderFromX) * Config.TileSize);
+      let y = ((App.CursorPosition.Y - App.RenderFromY) * Config.TileSize);
+      App.SelectedTool.onRender(x, y, App.CurrentFloor, CTX);
     }
 
     let margin = (Config.MaxFloor - Config.MinFloor) * Config.TileSize;
@@ -349,14 +357,14 @@ var App = {
     CTX.clearRect(0, 0, App.Canvas.General.width, App.Canvas.General.height);
 
     for (let z = Config.MinFloor; z <= Config.MaxFloor; z++) {
-      // do not apply not visible floors
-      if (!(App.CurrentFloor - z >= 5) && !(App.CurrentFloor >= 0 && z < 0)) {
+      if(!(z > App.CurrentFloor || (App.CurrentFloor >= 0 && z < 0))) {
         CTX.drawImage(App.Canvas.Floor[z], margin, margin);
       }
-      margin = margin - Config.TileSize;
       if (z === App.CurrentFloor) {
+        CTX.drawImage(App.Canvas.HUD, margin, margin);
         break;
       }
+      margin = margin - Config.TileSize;
     }
   },
 

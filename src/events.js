@@ -58,8 +58,11 @@ var Events = function() {
       $('.pos-z', document).text('Z: ' + App.CurrentFloor);
       if (App.Dragging && App.SelectedTool.onDrag) {
         App.SelectedTool.onDrag(App.CursorPosition.X, App.CursorPosition.Y, App.CurrentFloor);
+        App.render('current');
       }
-      App.render();
+      else {
+        App.render('GUI');
+      }
     }
   });
 
@@ -75,7 +78,7 @@ var Events = function() {
     if(App.SelectedTool.onClick) {
       App.SelectedTool.onClick(App.CursorPosition.X, App.CursorPosition.Y, App.CurrentFloor);
     }
-    App.render();
+    App.render('current');
   });
 
   $(document).on("keydown", function (e) {
@@ -88,7 +91,7 @@ var Events = function() {
   $(document).on('keyup', function (e) {
     if (e.keyCode === 16) {
       e.preventDefault();
-      App.ShiftDown = false;
+      window.ShiftDown = false;
       $('.content', document).css('cursor', 'default');
     }
   });
@@ -96,7 +99,7 @@ var Events = function() {
   $(document).on('keyup', function (e) {
     if (e.keyCode === 9) {
       e.preventDefault();
-      App.TabDown = false;
+      window.TabDown = false;
       App.setTool('brush');
     }
   });

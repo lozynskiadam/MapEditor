@@ -43,13 +43,15 @@ var Keyboard = {
 
   // [R] -> set tool sampler
   9: function() {
-    App.TabDown = true;
     App.setTool('sampler');
   },
 
   // [Tab] -> select hovered/highlighted item
   82: function() {
-    App.TabDown = true;
+    if(window.TabDown) {
+      return;
+    }
+    window.TabDown = true;
     App.setTool('sampler');
   },
 
@@ -97,7 +99,7 @@ var Keyboard = {
   
   // [Shift] -> allow stacking items on same layer while drawing
   16: function() {
-    App.ShiftDown = true;
+    window.ShiftDown = true;
     $('.content', document).css('cursor', 'alias');
   },
   
