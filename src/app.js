@@ -90,7 +90,7 @@ var App = {
     App.setTool('pointer');
     App.setCanvasSize();
     Events();
-    $('body', document).removeClass('loading');
+    $('.loading', document).hide('fade');
   },
 
   setBrushSize: function (size) {

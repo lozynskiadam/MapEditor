@@ -18,8 +18,32 @@ body {
   color: #333;
   transition: all .25s linear 0s;
 }
-body.loading {
-  opacity: 0;
+.loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #222;
+  z-index: 5000;
+}
+.spinner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  display: inline-block;
+  width: 35px;
+  height: 35px;
+  border: 5px solid rgba(255,255,255,0.25);
+  border-top: 5px solid rgba(255,255,255,0.8);
+  border-radius: 50%;
+  animation: 0.75s linear infinite spinner;
+}
+@keyframes spinner {
+  to { transform: rotate(360deg) /* rtl:ignore */; }
 }
 .sidebar {
   position: relative;
