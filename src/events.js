@@ -41,6 +41,7 @@ var Events = function() {
   $(document).on('click.new', '[data-action="new"]', App.new);
   $(document).on('click.open', '[data-action="open"]', App.open);
   $(document).on('click.save', '[data-action="save"]', App.save);
+  $(document).on('click.help', '[data-action="help"]', App.help);
 
   $(document).on('mousemove.map', '#map', function (event) {
     let bounds = event.target.getBoundingClientRect();
@@ -97,6 +98,16 @@ var Events = function() {
       e.preventDefault();
       App.TabDown = false;
       App.setTool('brush');
+    }
+  });
+
+  $(document).tooltip({
+    show: {
+      delay: 400,
+      duration: 200
+    },
+    hide: {
+      duration: 200
     }
   });
 

@@ -253,8 +253,46 @@ var App = {
   save: function () {
     let file = document.createElement("a");
     file.download = "map.json";
-    file.href = URL.createObjectURL(new Blob([JSON.stringify(App.Map, null, 2)]));
+    file.href = URL.createObjectURL(new Blob([JSON.stringify(App.Map, null)]));
     file.click()
+  },
+
+  help: function() {
+    let $help = $(document.createElement('div'));
+    let html = [
+      '<label class="key">Q</label> pointer tool',
+      '<label class="key">W</label> brush tool',
+      '<label class="key">E</label> eraser tool',
+      '<label class="key">R</label> sampler tool',
+      '<label class="key">TAB</label> sampler tool (alt.)',
+      '<label class="key">+</label> enlarge brush size',
+      '<label class="key">-</label> decrease brush size',
+      '<label class="key">X</label> Toggle primary/secondary object',
+      '<label class="key">Del</label> Remove highlighted object',
+      '<label class="key">PgUp</label> Higher floor',
+      '<label class="key">PgDn</label> Lower floor',
+      '<label class="key">Shift</label> Hold to allow stacking same layer objects',
+    ];
+    $help.html(html.join('<br/>'));
+    $help.dialog({
+      title: "Keyboard shortcuts",
+      width: 350,
+      modal: true,
+      closeText: null,
+      draggable: false,
+      show: 'fade',
+      hide: 'fade',
+      classes: {
+        "ui-dialog-content": "shortcuts"
+      },
+      open: function() {
+        $(this).parents('.ui-dialog').attr('tabindex', -1)[0].focus();
+      },
+      close: function(event, ui) {
+        $(this).dialog("close");
+        $(this).remove();
+      }
+    });
   },
 
   render: function () {

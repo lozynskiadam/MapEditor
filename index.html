@@ -3,8 +3,10 @@
 <head>
   <title>MapEditor</title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2">
+  <link type="text/css" rel="stylesheet" href="src/jquery-ui.min.css"/>
   <link type="text/css" rel="stylesheet" href="src/app.css"/>
   <script src="src/jquery-3.4.1.min.js"></script>
+  <script src="src/jquery-ui.min.js"></script>
   <script src="src/app.js"></script>
   <script src="src/tools.js"></script>
   <script src="src/keyboard.js"></script>
@@ -28,17 +30,18 @@
 
   <div class="menu-buttons">
 
-    <div data-action="new" class="menu-button"><span></span></div>
-    <div data-action="open" class="menu-button"><span></span></div>
-    <div data-action="save" class="menu-button"><span></span></div>
+    <div data-action="new" class="menu-button" title="New"><span></span></div>
+    <div data-action="open" class="menu-button" title="Open"><span></span></div>
+    <div data-action="save" class="menu-button" title="Save"><span></span></div>
+    <div data-action="help" class="menu-button" title="Help"><span></span></div>
 
     <div class="menu-separator"></div>
 
-    <div data-tool="pointer" class="menu-button active"><span></span></div>
-    <div data-tool="brush" class="menu-button"><span></span></div>
-    <div data-tool="eraser" class="menu-button"><span></span></div>
-    <div data-tool="sampler" class="menu-button"><span></span></div>
-    <input id="BrushSize" type="range" min="1" max="4" value="1" class="menu-button slider">
+    <div data-tool="pointer" class="menu-button active" title="Pointer (Q)"><span></span></div>
+    <div data-tool="brush" class="menu-button" title="Brush (W)"><span></span></div>
+    <div data-tool="eraser" class="menu-button" title="Eraser (E)"><span></span></div>
+    <div data-tool="sampler" class="menu-button" title="Sampler (R / hold TAB)"><span></span></div>
+    <input id="BrushSize" type="range" min="1" max="4" value="1" class="menu-button slider" title="Brush size (+/-)">
 
   </div>
 
