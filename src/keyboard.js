@@ -4,26 +4,26 @@ var Keyboard = {
   38: function() {
     if(App.RenderFromY === 0) return;
     App.RenderFromY--;
-    App.render();
+    App.render('all');
   },
 
   // [Cursor down] -> move map
   40: function() {
     App.RenderFromY++;
-    App.render();
+    App.render('all');
   },
 
   // [Cursor left] -> move map
   37: function() {
     if(App.RenderFromX === 0) return;
     App.RenderFromX--;
-    App.render();
+    App.render('all');
   },
 
   // [Cursor right] ->  move map
   39: function() {
     App.RenderFromX++;
-    App.render();
+    App.render('all');
   },
 
   // [Q] -> set tool pointer
@@ -112,7 +112,7 @@ var Keyboard = {
     else {
       App.eraseOnTile(App.CursorPosition.X,App.CursorPosition.Y,App.CurrentFloor);
     }
-    App.render();
+    App.render('current');
   },
 
 };

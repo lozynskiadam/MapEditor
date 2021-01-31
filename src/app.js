@@ -89,7 +89,7 @@ var App = {
       App.Canvas.Floor[z].width = App.Canvas.General.width;
       App.Canvas.Floor[z].height = App.Canvas.General.height;
     }
-    App.render();
+    App.render('all');
   },
 
   setBrushSize: function (size) {
@@ -98,7 +98,7 @@ var App = {
     }
     App.BrushSize = size;
     $('#BrushSize', document).val(size);
-    App.render();
+    App.render('current');
   },
 
   refreshPalette: function () {
@@ -157,8 +157,9 @@ var App = {
   setCurrentFloor: function(z) {
     if(z < Config.MinFloor || z > Config.MaxFloor) return;
     App.CurrentFloor = z;
+    App.HighlightedItem = null;
     $('.pos-z', document).text('Z: ' + App.CurrentFloor);
-    App.render();
+    App.render('all');
   },
 
   drawOnTile: function (x, y, z) {
@@ -219,14 +220,14 @@ var App = {
       return;
     }
     App.HighlightedItem = {Item: App.getItem(App.Map[z][y][x].slice(-1)[0]), X: x, Y: y, Z: z};
-    App.render();
+    App.render('current');
   },
 
   new: function() {
     App.Map = {};
     App.RenderFromX = 0;
     App.RenderFromY = 0;
-    App.render();
+    App.render('all');
   },
 
   open: function () {
@@ -243,7 +244,7 @@ var App = {
         }
         App.RenderFromX = 0;
         App.RenderFromY = 0;
-        App.render();
+        App.render('all');
       };
       reader.readAsText(event.target.files[0]);
     });
@@ -295,13 +296,13 @@ var App = {
     });
   },
 
-  render: function (floor = 'all') {
+  render: function (context) {
     let CTX;
 
-    if(floor === 'all' || floor === 'current') {
+    if(context === 'all' || context === 'current') {
       for (let z = Config.MinFloor; z <= Config.MaxFloor; z++) {
 
-        if (floor === 'current' && z !== App.CurrentFloor) {
+        if (context === 'current' && z !== App.CurrentFloor) {
           continue;
         }
 
