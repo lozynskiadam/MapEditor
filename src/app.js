@@ -187,6 +187,10 @@ var App = {
         }
       }
     }
+    if(window.ShiftDown) {
+      window.ShiftDown = false;
+      $('.content', document).css('cursor', 'default');
+    }
 
     if (!drawn) {
       if (App.SelectedItem.layer === 'ground') {

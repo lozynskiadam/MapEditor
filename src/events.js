@@ -11,7 +11,7 @@ var Events = function() {
     App.Dragging = false;
   });
 
-  $(document).on('wheel', function(e) {
+  $(document).on('wheel', '.content', function(e) {
     if (e.originalEvent.deltaY < 0) {
       App.setBrushSize(App.BrushSize+1);
     }
